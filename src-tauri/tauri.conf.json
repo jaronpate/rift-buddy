@@ -63,7 +63,9 @@
     "windows": [
       {
         "title": "Rift Buddy",
-        "width": 1200,
+        "minWidth": 500,
+        "minHeight": 600,
+        "width": 500,
         "height": 600,
         "resizable": true,
         "fullscreen": false,
@@ -72,10 +74,12 @@
         "decorations": false
       },
       {
-        "width": 400,
-        "height": 300,
+        "width": 250,
+        "height": 250,
+        "resizable": false,
         "decorations": false,
         "transparent": true,
+        "center": true,
         "url": "splash.html",
         "label": "splash"
       }

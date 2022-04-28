@@ -5,17 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <!-- <link rel="icon" href="<%= BASE_URL %>logo.jpg"> -->
-    <link rel="icon" href="./assets/logo.jpg">
+    <link rel="icon" href="/assets/logo.jpg">
     <title><%= htmlWebpackPlugin.options.title %></title>
   </head>
   <body>
     <nav data-tauri-drag-region style="-webkit-app-region: drag; -webkit-user-select: none; z-index: 1;">
       <div class="nav-logo">
-        <img src="./assets/logo.jpg" alt="logo" style="max-height: 20px;">
+        <img data-tauri-drag-region src="./assets/logo.jpg" alt="logo" style="max-height: 20px;">
+        <h4 data-tauri-drag-region style="color: #b39556; opacity: 0.7; margin: 0 0 0 7px;">Rift Buddy</h4>
       </div>
       <div class="nav-btns">
         <svg id="minimize" aria-hidden="false" width="12" height="12" viewBox="0 0 12 12"><rect fill="currentColor" width="10" height="1" x="1" y="6"></rect></svg>
-        <svg id="maximize" aria-hidden="false" width="12" height="12" viewBox="0 0 12 12"><rect width="9" height="9" x="1.5" y="1.5" fill="none" stroke="currentColor"></rect></svg>
+        <!-- <svg id="maximize" aria-hidden="false" width="12" height="12" viewBox="0 0 12 12"><rect width="9" height="9" x="1.5" y="1.5" fill="none" stroke="currentColor"></rect></svg> -->
+        <span id="maximize"><i class="iconify" data-icon="bx:bxs-cog"></i></span>
         <svg id="close" aria-hidden="false" width="12" height="12" viewBox="0 0 12 12"><polygon fill="currentColor" fill-rule="evenodd" points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"></polygon></svg>
       </div>
     </nav>
@@ -24,5 +26,6 @@
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+    <script src="https://code.iconify.design/2/2.1.0/iconify.min.js"></script>
   </body>
 </html>

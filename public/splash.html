@@ -6,8 +6,8 @@
     <title>Splash</title>
 </head>
 <body data-tauri-drag-region style="-webkit-app-region: drag; -webkit-user-select: none;">
-    <img src="./assets/logo.jpg" style="height: 128px; margin-bottom: 35px;">
-    <div class="loader loader--style8" title="7">
+    <img data-tauri-drag-region src="./assets/logo.jpg" style="height: 128px; margin-bottom: 15px;">
+    <div data-tauri-drag-region class="loader loader--style8">
         <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
            width="24px" height="30px" viewBox="0 0 24 30" style="enable-background:new 0 0 50 50;" xml:space="preserve">
           <rect x="0" y="10" width="4" height="10" fill="#333" opacity="0.2">
@@ -27,7 +27,8 @@
           </rect>
         </svg>
       </div>
-    <!-- <h1>Rift Buddy</h1> -->
+    <!-- <h1 data-tauri-drag-region>Rift Buddy</h1> -->
+    <!-- <p data-tauri-drag-region style="margin: 0; font-weight: bold">Searching for League client...</p> -->
 </body>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600&display=swap');
@@ -45,16 +46,19 @@ body{
   align-items: center;
   overflow: hidden;
   height: 100%;
+  margin: 0;
 }
 h1{
     font-weight: 600;
 }
+h1, h3{
+  margin: 0;
+}
 .loader{
-  margin: 0 0 2em;
   width: 20%;
   text-align: center;
   padding: 1em;
-  margin: 0 auto 1em;
+  margin: 0 auto 0;
   display: inline-block;
   vertical-align: top;
 }

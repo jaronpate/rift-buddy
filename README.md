@@ -9,7 +9,7 @@ npm install
 ### Compiles and hot-reloads for development
 ```
 npm run serve
-npm run tauri
+npm run tauri dev
 ```
 
 ### Compiles and minifies for production
