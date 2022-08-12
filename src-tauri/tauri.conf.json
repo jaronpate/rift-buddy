@@ -1,20 +1,27 @@
 {
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "build": {
+    "beforeBuildCommand": "yarn build",
+    "beforeDevCommand": "yarn dev",
+    "devPath": "http://localhost:5173",
+    "distDir": "../dist"
+  },
   "package": {
     "productName": "rift-buddy",
     "version": "0.1.0"
   },
-  "build": {
-    "distDir": "../src",
-    "devPath": "http://localhost:8080",
-    "beforeDevCommand": "",
-    "beforeBuildCommand": "",
-    "withGlobalTauri": true
-  },
   "tauri": {
+    "allowlist": {
+      "all": true
+    },
     "bundle": {
       "active": true,
-      "targets": "all",
-      "identifier": "dev.fishhat.riftbuddy",
+      "category": "DeveloperTool",
+      "copyright": "",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -22,70 +29,38 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": ["assets/*"],
-      "externalBin": [],
-      "copyright": "",
-      "category": "Utility",
-      "shortDescription": "Save your rune pages. Among other things.",
-      "longDescription": "Save your rune pages. Among other things.",
-      "deb": {
-        "depends": [],
-        "useBootstrapper": false
-      },
+      "identifier": "com.tauri.dev",
+      "longDescription": "",
       "macOS": {
-        "frameworks": [],
-        "minimumSystemVersion": "",
-        "useBootstrapper": false,
+        "entitlements": null,
         "exceptionDomain": "",
-        "signingIdentity": null,
-        "entitlements": null
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
       },
+      "resources": [],
+      "shortDescription": "",
+      "targets": "all",
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
         "timestampUrl": ""
       }
     },
+    "security": {
+      "csp": null
+    },
     "updater": {
       "active": false
     },
-    "allowlist": {
-      "all": true,
-      "window": {
-        "all": true,
-        "create": true
-      },
-      "fs": {
-        "readTextFile": true,
-        "readBinaryFile": true
-      }
-    },
     "windows": [
       {
-        "title": "Rift Buddy",
-        "minWidth": 500,
-        "minHeight": 600,
-        "width": 500,
-        "height": 600,
-        "resizable": true,
         "fullscreen": false,
-        "visible": false,
-        "transparent": true,
-        "decorations": false
-      },
-      {
-        "width": 250,
-        "height": 250,
-        "resizable": false,
-        "decorations": false,
-        "transparent": true,
-        "center": true,
-        "url": "splash.html",
-        "label": "splash"
+        "height": 700,
+        "resizable": true,
+        "title": "Rift Buddy",
+        "width": 800
       }
-    ],
-    "security": {
-      "csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
-    }
+    ]
   }
 }
