@@ -4,7 +4,8 @@
     "beforeBuildCommand": "yarn build",
     "beforeDevCommand": "yarn dev",
     "devPath": "http://localhost:5173",
-    "distDir": "../dist"
+    "distDir": "../dist",
+    "withGlobalTauri": true    
   },
   "package": {
     "productName": "rift-buddy",
@@ -12,7 +13,15 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "all": true,
+      "window": {
+        "show": true,
+        "hide": true,
+        "close": true
+      },
+      "fs": {
+        "readFile": true
+      }
     },
     "bundle": {
       "active": true,
@@ -38,7 +47,7 @@
         "providerShortName": null,
         "signingIdentity": null
       },
-      "resources": [],
+      "resources": ["./riotgames.pem"],
       "shortDescription": "",
       "targets": "all",
       "windows": {
@@ -59,7 +68,17 @@
         "height": 700,
         "resizable": true,
         "title": "Rift Buddy",
-        "width": 800
+        "width": 800,
+        "visible": false
+      },
+      {
+        "width": 250,
+        "height": 250,
+        "resizable": false,
+        "decorations": false,
+        "center": true,
+        "url": "splash.html",
+        "label": "splash"
       }
     ]
   }
