@@ -6,7 +6,7 @@
     <title>Splash</title>
 </head>
 <body data-tauri-drag-region style="-webkit-app-region: drag; -webkit-user-select: none;">
-    <img data-tauri-drag-region src="/logo.jpg" style="height: 128px; margin-bottom: 15px;">
+    <img data-tauri-drag-region src="/logo.jpg" style="height: 128px; margin-bottom: 15px; padding-top: 1.5em;">
     <div data-tauri-drag-region class="loader loader--style8">
         <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
            width="24px" height="30px" viewBox="0 0 24 30" style="enable-background:new 0 0 50 50;" xml:space="preserve">
@@ -73,7 +73,7 @@ svg rect{
 </style>
 <script>
 const invoke = window.__TAURI__.invoke
-// invoke('close_splash')
+// setTimeout(invoke('close_splash'), 5000)
 
 // Check if LCU is running
 const interval = setInterval(connect, 2000)

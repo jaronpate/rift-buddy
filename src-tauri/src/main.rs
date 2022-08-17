@@ -5,17 +5,18 @@
 
 use league_client_connector::LeagueClientConnector;
 use league_client_connector::RiotLockFile;
+use reqwest::Method;
 use tauri::{
   Manager,
 };
-
+use std::sync:: Mutex;
 use reqwest::Client;
 use std::fs::File;
 use std::io::Read;
 
 struct AppState {
   client: Client,
-  credentials: RiotLockFile,
+  credentials: Mutex<Option<RiotLockFile>>
 }
 
 #[tauri::command]
@@ -32,27 +33,51 @@ fn close_splash(window: tauri::Window) {
 }
 
 #[tauri::command]
-fn get_credentials() -> Result<RiotLockFile, String> {
+fn get_credentials(state: tauri::State<AppState>) -> Result<String, String> {
   let lockfile = LeagueClientConnector::parse_lockfile();
   match lockfile {
-    Ok(lockfile) => Ok(lockfile.into()),
+    Ok(lockfile) => {
+      *state.credentials.lock().unwrap() = Some(lockfile.into());
+      Ok("Credentials loaded".into())
+    },
     Err(_) => Err("League Client not found.".into())
   }
 }
 
 #[tauri::command]
-async fn lcu(state: tauri::State<'_, AppState>, endpoint: String) -> Result<serde_json::Value, String> {
-  println!("https://{}:{}{}", state.credentials.address, state.credentials.port, endpoint);
-  let body: serde_json::Value = state.client.get(format!("https://{}:{}{}", state.credentials.address, state.credentials.port, endpoint))
-  .basic_auth("riot", Some(state.credentials.password.clone()))
+async fn lcu(state: tauri::State<'_, AppState>, endpoint: String, method: String, data: Option<serde_json::Value>) -> Result<serde_json::Value, String> {
+  let credentials = state.credentials.lock().unwrap().as_ref().expect("Credentials not found").clone();
+  let method = match method.to_string().to_uppercase().as_ref() {
+    "GET" => Method::GET,
+    "POST" => Method::POST,
+    "PUT" => Method::PUT,
+    "DELETE" => Method::DELETE,
+    _ => Method::GET
+  };
+  let body = match data {
+    Some(data) => Some(data),
+    None => Some(serde_json::Value::Null)
+  };
+
+  println!("{:?}", body);
+
+  // println!("https://{}:{}{}", credentials.address, credentials.port, endpoint);
+  
+  let body = state.client.request(method.clone(), format!("https://{}:{}{}", credentials.address, credentials.port, endpoint))
+  .basic_auth("riot", Some(credentials.password.clone()))
+  .json(&body)
   .send()
   .await
-  .expect("Failed to send request")
-  .json::<serde_json::Value>()
-  .await
-  .expect("Failed to parse response");
+  .expect("Failed to send request");
 
-  Ok(body.into())
+  // println!("{:?}", body);
+
+  let parsed = match method == Method::GET || method == Method::POST {
+    true => body.json::<serde_json::Value>().await.expect("Failed to parse response"),
+    false => serde_json::Value::Null
+  };
+
+  Ok(parsed.into())
 }
 
 fn main() {
@@ -72,10 +97,9 @@ fn main() {
           .add_root_certificate(cert)
           .build()
           .unwrap();
-        let credentials = get_credentials().expect("League Client not found.");
         app.manage(AppState {
           client,
-          credentials
+          credentials: Mutex::new(None)
         });
       })
 
