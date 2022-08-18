@@ -3,7 +3,7 @@ import settings from "iconoir/icons/settings.svg";
 import upload from "iconoir/icons/upload.svg";
 import download from "iconoir/icons/download.svg";
 import share from "iconoir/icons/share-ios.svg";
-import save from "iconoir/icons/save-action-floppy.svg";
+import floppy from "iconoir/icons/save-action-floppy.svg";
 </script>
 
 <template>
@@ -16,7 +16,6 @@ import save from "iconoir/icons/save-action-floppy.svg";
                     <div class="username"><em class="sub-text">Logged in as {{user.displayName}}</em></div>
             </template>
             <template v-else>
-                    <!-- <div class="pfp flex-center"><img :src="`http://ddragon.leagueoflegends.com/cdn/12.15.1/img/profileicon/${''}.png`" /></div> -->
                     <div class="pfp flex-center"><img src="http://ddragon.leagueoflegends.com/cdn/12.15.1/img/item/1001.png" /></div>
                     <div class="username"><em class="sub-text">LOL client not found...</em></div>
             </template>
@@ -38,7 +37,7 @@ import save from "iconoir/icons/save-action-floppy.svg";
                 <template v-if="loading">
                     <div class="loading"></div>
                 </template>
-                <div class="result" v-else-if="results.length" v-for="champ in results" @click="select(champ)">
+                <div class="result" v-else-if="results.length" v-for="champ in results" @click="select(champ)" :key="champ.id">
                     <img :src="champ_img(champ.image.full)"/>
                     <div class="info">
                         <h4>{{champ.name}}</h4>
@@ -49,7 +48,7 @@ import save from "iconoir/icons/save-action-floppy.svg";
         </div>
         <div class="options">
             <img class="icon" @click="save" :src="download" />
-            <img class="icon" @click="update" :src="upload" />
+            <img class="icon" @click="selecting_page = true" :src="upload" />
             <!-- <img class="icon" @click="save" :src="save" />
             <img class="icon" @click="update" :src="share" /> -->
         </div>
@@ -67,7 +66,7 @@ import save from "iconoir/icons/save-action-floppy.svg";
                     <h3>P</h3>
                     <img :title="`${champ.passive.name}\n${champ.passive.description}`" :src="passive_img(champ.passive.image.full)" />
                 </div>
-                <div class="spell" v-for="(spell, i) in champ.spells">
+                <div class="spell" v-for="(spell, i) in champ.spells" :key="spell.id">
                     <h3>{{spells[i]}}</h3>
                     <img :title="`${spell.name}\n${spell.description}`" :src="spell_img(spell.image.full)" />
                 </div>
@@ -77,46 +76,52 @@ import save from "iconoir/icons/save-action-floppy.svg";
             <div class="rune-page">
                 <!-- PRIMARY STYLE -->
                 <div class="select-main-rune">
-                    <div class="main-rune" v-for="rune in runes" @click="select_main_rune(rune)">
+                    <div class="main-rune" v-for="rune in runes" @click="select_main_rune(rune)"  :key="rune.id+'1'">
                         <img :title="rune.name" :src="rune_img(rune.icon)" :class="{'selected': page.primaryStyleId === rune.id}"/>
                     </div>
                 </div>
                 <!-- MAIN PAGE -->
-                <div class="rune-set" v-if="page.primaryStyleId" v-for="(slot, i) in primary_slots">
-                    <div class="rune" :class="{'keystones': i === 0}" v-for="entry in slot.runes" @click="page.selectedPerkIds[i] = entry.id">
-                        <img :title="entry.name" :class="{'selected': page.selectedPerkIds[i] === entry.id}" :src="rune_img(entry.icon)" />
+                <template v-if="page.primaryStyleId">
+                    <div class="rune-set" v-for="(slot, i) in primary_slots" :key="slot.runes.join(`1:${i}`)">
+                        <div class="rune" :class="{'keystones': i === 0}" v-for="entry in slot.runes" @click="page.selectedPerkIds[i] = entry.id" :key="entry.id+'1'">
+                            <img :title="entry.name" :class="{'selected': page.selectedPerkIds[i] === entry.id}" :src="rune_img(entry.icon)" />
+                        </div>
                     </div>
-                </div>
+                </template>
             </div>
 
             <div class="rune-page">
                 <!-- SUB STYLE -->
                 <div class="select-main-rune">
                     <template v-for="rune in runes">
-                        <div class="main-rune" v-if="rune.id !== page.primaryStyleId" @click="page.subStyleId = rune.id">
+                        <div class="main-rune" v-if="rune.id !== page.primaryStyleId" @click="page.subStyleId = rune.id" :key="rune.id+'2'">
                             <img :title="rune.name" :src="rune_img(rune.icon)" :class="{'selected': page.subStyleId === rune.id}"/>
                         </div>
                     </template>
                 </div>
                 <!-- SECONDARY PAGE -->
-                <div class="rune-set" v-if="page.subStyleId" v-for="(slot, i) in secondary_slots">
-                    <div class="rune" v-if="i !== 0" v-for="entry in slot.runes"  @click="() => select_secondary_perk(entry.id)">
-                        <img :title="entry.name" :class="{'selected': page.selectedPerkIds.includes(entry.id)}" :src="rune_img(entry.icon)" />
+                <template v-if="page.subStyleId">
+                    <div class="rune-set" v-for="(slot, i) in secondary_slots" :key="slot.runes.join(`2:${i}`)">
+                    <template v-if="i !== 0">
+                        <div class="rune" v-for="entry in slot.runes"  @click="() => select_secondary_perk(entry.id)" :key="entry.id+'2'">
+                            <img :title="entry.name" :class="{'selected': page.selectedPerkIds.includes(entry.id)}" :src="rune_img(entry.icon)" />
+                        </div>
+                    </template>
                     </div>
-                </div>
+                </template>
                 <!-- STAT MODS -->
                 <div class="flex-center" style="margin-top: 15px;">
-                    <div class="stat-mod" v-for="mod in offense_stat_mods" @click="page.selectedPerkIds[6] = mod.id">
+                    <div class="stat-mod" v-for="mod in offense_stat_mods" @click="page.selectedPerkIds[6] = mod.id" :key="mod.id+'1'">
                         <img :title="mod.desc" :class="{'selected': page.selectedPerkIds[6] === mod.id}" :src="stat_img(mod.icon)" />
                     </div>
                 </div>
                 <div class="flex-center">
-                    <div class="stat-mod" v-for="mod in flex_stat_mods" @click="page.selectedPerkIds[7] = mod.id">
+                    <div class="stat-mod" v-for="mod in flex_stat_mods" @click="page.selectedPerkIds[7] = mod.id"  :key="mod.id+'2'">
                         <img :title="mod.desc" :class="{'selected': page.selectedPerkIds[7] === mod.id}" :src="stat_img(mod.icon)" />
                     </div>
                 </div>
                 <div class="flex-center">
-                    <div class="stat-mod" v-for="mod in defense_stat_mods" @click="page.selectedPerkIds[8] = mod.id">
+                    <div class="stat-mod" v-for="mod in defense_stat_mods" @click="page.selectedPerkIds[8] = mod.id" :key="mod.id+'3'">
                         <img :title="mod.desc" :class="{'selected': page.selectedPerkIds[8] === mod.id}" :src="stat_img(mod.icon)" />
                     </div>
                 </div>
@@ -126,6 +131,21 @@ import save from "iconoir/icons/save-action-floppy.svg";
             <div class="loading"></div>
         </template>
     </div>
+    <modal v-if="selecting_page">
+        <div class="background" @click="selecting_page = false"></div>
+        <div class="content flex-center flex-col">
+            <h2>Load A Page</h2>
+            <select>
+                <option value="Page">Page Name</option>
+                <option value="Page">Page Name</option>
+                <option value="Page">Page Name</option>
+            </select>
+            <div class="options flex-center">
+                <div class="button" @click="update">Load</div>
+                <div class="button" @click="selecting_page = false">Close</div>
+            </div>
+        </div>
+    </modal>
 </template>
 
 <script lang="ts">
@@ -138,6 +158,7 @@ type Champ = Record<string, any>;
 type Rune = Record<string, any>;
 type AdaptiveRune = Record<string, any>;
 type RunePage = Record<string, any>;
+type PageMetadata = Record<string, any>;
 
 export default {
     data() {
@@ -173,17 +194,21 @@ export default {
                 primaryStyleId: null as number | null,
                 subStyleId: null as number | null,
                 selectedPerkIds: [] as number[],
-                current: true
-            },
+                current: true,
+                metadata: {} as PageMetadata
+            } as RunePage,
             current_page: {} as RunePage,
+            selecting_page: false,
             secondary_perk_index: 4
         };
     }, 
     computed: {
         primary_slots(){
+            // @ts-ignore This exists...
             return this.runes.find(rune => rune.id === this.page.primaryStyleId)?.slots ?? [];
         },
         secondary_slots(){
+            // @ts-ignore This exists...
             return this.runes.find(rune => rune.id === this.page.subStyleId)?.slots ?? [];
         }
     },
@@ -250,6 +275,7 @@ export default {
                 }).catch(console.error);
         },
         validate(){
+            console.log(this.page)
             switch(true){
                 case this.page.primaryStyleId === null:
                     return false;
@@ -260,7 +286,6 @@ export default {
                 case this.page.selectedPerkIds.join('').trim().length === 0:
                     return false;
                 default:
-                    console.log('invalid config')
                     return true;
             }
         },
@@ -279,9 +304,10 @@ export default {
             if(!this.validate()){return;}
             const pages_json = localStorage.getItem('rune_pages');
             if(pages_json){
-                const pages = JSON.parse(pages_json);
-                pages.push(this.page);
-                localStorage.setItem('rune_pages', JSON.stringify(pages_json));
+                const pages_array = JSON.parse(pages_json);
+                const pages = new Map(pages_array)
+                pages.set(this.page.id, this.page);
+                localStorage.setItem('rune_pages', JSON.stringify(Array.from(pages.entries())));
             } else {
                 localStorage.setItem('rune_pages', JSON.stringify([this.page]));
             }
@@ -324,6 +350,74 @@ export default {
     src: url("./assets/Inter.ttf") format("ttf");
 }
 
+modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    height: 100%;
+    width: 100%;
+
+    .background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background-color: fade(#111, 80%);
+    }
+
+    .content {
+        width: 50%;
+        height: 30%;
+        border-radius: 5px;
+        background-color: #111;
+        z-index: 10;
+
+        h1, h2, h3 {
+            color: #b39556;
+            margin-top: 0;
+        }
+
+        select {
+            width: 80%;
+        }
+    }
+
+    .options {
+        margin-top: 20px;
+    }
+}
+
+.button {
+    border-radius: 3px;
+    background-color: #b6944c;
+    padding: 5px 15px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition-property: background-color;
+    transition: linear 0.1s;
+    font-weight: bold;
+
+    &:hover {
+        background-color: fade(#b39556, 70%);
+    }
+}
+
+.mx-10{
+    margin: 10px 0;
+}
+
+.mx-20{
+    margin: 20px 0;
+}
+
+.flex-col{
+    flex-direction: column;
+}
 .flex-center {
     display: flex;
     justify-content: center;
@@ -445,7 +539,7 @@ header.connection {
             border-radius: 99px;
             transition: outline linear 0.1s;
             outline-color: #b39556;
-            outline: #d6414100 solid 2px;
+            outline: #b3955600 solid 2px;
 
             &:hover, &.selected {
                 outline-color: #b39556;
@@ -526,7 +620,7 @@ header.connection {
     }
 }
 
-input {
+input, select {
     font-family: "Inter", sans-serif;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
