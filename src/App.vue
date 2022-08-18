@@ -22,9 +22,9 @@ import floppy from "iconoir/icons/save-action-floppy.svg";
         </div>
         <div class="ff"></div>
         <div class="nav-btns">
-            <svg class="nav-btn" @click="minimize" aria-hidden="false" width="12" height="12" viewBox="0 0 12 12"><rect fill="currentColor" width="10" height="1" x="1" y="6"></rect></svg>
-            <svg class="nav-btn" @click="toggleMaximize" aria-hidden="false" width="12" height="12" viewBox="0 0 12 12"><rect width="9" height="9" x="1.5" y="1.5" fill="none" stroke="currentColor"></rect></svg>
-            <svg class="nav-btn" @click="close" id="close" aria-hidden="false" width="12" height="12" viewBox="0 0 12 12"><polygon fill="currentColor" fill-rule="evenodd" points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"></polygon></svg>
+            <svg class="nav-btn" @click="() => minimize()" aria-hidden="false" width="12" height="12" viewBox="0 0 12 12"><rect fill="currentColor" width="10" height="1" x="1" y="6"></rect></svg>
+            <svg class="nav-btn" @click="() => toggleMaximize()" aria-hidden="false" width="12" height="12" viewBox="0 0 12 12"><rect width="9" height="9" x="1.5" y="1.5" fill="none" stroke="currentColor"></rect></svg>
+            <svg class="nav-btn" @click="() => close()" id="close" aria-hidden="false" width="12" height="12" viewBox="0 0 12 12"><polygon fill="currentColor" fill-rule="evenodd" points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"></polygon></svg>
         </div>
     </header>
     <header>
@@ -37,7 +37,7 @@ import floppy from "iconoir/icons/save-action-floppy.svg";
                 <template v-if="loading">
                     <div class="loading"></div>
                 </template>
-                <div class="result" v-else-if="results.length" v-for="champ in results" @click="select(champ)" :key="champ.id">
+                <div class="result" v-else-if="results.length" v-for="champ in results" @click="() => select(champ)" :key="champ.id">
                     <img :src="champ_img(champ.image.full)"/>
                     <div class="info">
                         <h4>{{champ.name}}</h4>
@@ -47,10 +47,8 @@ import floppy from "iconoir/icons/save-action-floppy.svg";
             </div>
         </div>
         <div class="options">
-            <img class="icon" @click="save" :src="download" />
+            <img class="icon" @click="saving_page = true" :src="download" />
             <img class="icon" @click="selecting_page = true" :src="upload" />
-            <!-- <img class="icon" @click="save" :src="save" />
-            <img class="icon" @click="update" :src="share" /> -->
         </div>
     </header>
     <div class="main">
@@ -76,7 +74,7 @@ import floppy from "iconoir/icons/save-action-floppy.svg";
             <div class="rune-page">
                 <!-- PRIMARY STYLE -->
                 <div class="select-main-rune">
-                    <div class="main-rune" v-for="rune in runes" @click="select_main_rune(rune)"  :key="rune.id+'1'">
+                    <div class="main-rune" v-for="rune in runes" @click="() => select_main_rune(rune)"  :key="rune.id+'1'">
                         <img :title="rune.name" :src="rune_img(rune.icon)" :class="{'selected': page.primaryStyleId === rune.id}"/>
                     </div>
                 </div>
@@ -134,15 +132,26 @@ import floppy from "iconoir/icons/save-action-floppy.svg";
     <modal v-if="selecting_page">
         <div class="background" @click="selecting_page = false"></div>
         <div class="content flex-center flex-col">
-            <h2>Load A Page</h2>
-            <select>
-                <option value="Page">Page Name</option>
-                <option value="Page">Page Name</option>
-                <option value="Page">Page Name</option>
+            <h2>Load Page</h2>
+            <select v-model="selected_page">
+                <option value="" disabled selected hidden>Select a saved page...</option>
+                <option v-for="(page) in saved_pages" :value="page" :key="page.internal_id">{{page.name}} ({{find_rune(page.primaryStyleId)?.name}} + {{find_rune(page.subStyleId)?.name}})</option>
             </select>
             <div class="options flex-center">
-                <div class="button" @click="update">Load</div>
+                <div class="button" @click="() => { if (selected_page) update(selected_page) }">Load</div>
+                <div class="button" @click="() => { if (selected_page) page = selected_page; selecting_page = false; }">Edit</div>
                 <div class="button" @click="selecting_page = false">Close</div>
+            </div>
+        </div>
+    </modal>
+    <modal v-if="saving_page">
+        <div class="background" @click="saving_page = false"></div>
+        <div class="content flex-center flex-col">
+            <h2>Save Page</h2>
+            <input v-model="page.name" placeholder="Enter a name for your page..." />
+            <div class="options flex-center">
+                <div class="button" @click="() => save()">Save</div>
+                <div class="button" @click="saving_page = false">Close</div>
             </div>
         </div>
     </modal>
@@ -151,7 +160,8 @@ import floppy from "iconoir/icons/save-action-floppy.svg";
 <script lang="ts">
 import axios from "axios";
 import { invoke } from '@tauri-apps/api/tauri';
-import { appWindow } from '@tauri-apps/api/window'
+import { appWindow } from '@tauri-apps/api/window';
+import { v4 as uuid } from 'uuid';
 
 type User = Record<string, any>;
 type Champ = Record<string, any>;
@@ -190,15 +200,19 @@ export default {
             champ: {} as Champ,
             user: {} as User,
             page: {
-                name: "Rift Buddy",
+                name: "",
                 primaryStyleId: null as number | null,
                 subStyleId: null as number | null,
                 selectedPerkIds: [] as number[],
                 current: true,
-                metadata: {} as PageMetadata
+                metadata: {} as PageMetadata,
+                id: null as number | null,
+                internal_id: null as number | null
             } as RunePage,
             current_page: {} as RunePage,
             selecting_page: false,
+            selected_page: null as RunePage| null, 
+            saving_page: false,
             secondary_perk_index: 4
         };
     }, 
@@ -210,6 +224,18 @@ export default {
         secondary_slots(){
             // @ts-ignore This exists...
             return this.runes.find(rune => rune.id === this.page.subStyleId)?.slots ?? [];
+        },
+        saved_pages(){
+            const pages_json = localStorage.getItem('rune_pages');
+            if (!pages_json) { return [] as RunePage[]; }
+            try {
+                const pages_array = JSON.parse(pages_json);
+                const pages = new Map(pages_array);
+                return Array.from(pages.values()) as RunePage[];
+            } catch {
+                localStorage.removeItem('rune_pages');
+                return [] as RunePage[];
+            }
         }
     },
     methods: {
@@ -264,6 +290,9 @@ export default {
                 this.secondary_perk_index = this.secondary_perk_index === 4 ? 5 : 4;
             }
         },
+        find_rune(rune_id: number){
+            return this.runes.find(rune => rune.id === rune_id);
+        },
         setup(){
             invoke('lcu', {endpoint: '/lol-summoner/v1/current-summoner', method: 'GET'})
                 .then((data) => {
@@ -274,31 +303,39 @@ export default {
                     this.current_page = data as RunePage;
                 }).catch(console.error);
         },
-        validate(){
-            console.log(this.page)
+        validate(page?: RunePage){
+            const to_validate = page ?? this.page;
+            if (!to_validate.internal_id) {
+                to_validate.internal_id = uuid();
+            }
             switch(true){
-                case this.page.primaryStyleId === null:
+                case to_validate.primaryStyleId === null:
                     return false;
-                case this.page.subStyleId === null:
+                case to_validate.subStyleId === null:
                     return false;
-                case this.page.selectedPerkIds.length < 9:
+                case to_validate.selectedPerkIds.length < 9:
                     return false;
-                case this.page.selectedPerkIds.join('').trim().length === 0:
+                case to_validate.selectedPerkIds.join('').trim().length === 0:
+                    return false;
+                case to_validate.name.trim().length === 0:
                     return false;
                 default:
                     return true;
             }
         },
-        async update(){
-            console.log(this.page)
-            if(!this.validate()){return;}
+        async update(page?: RunePage){
+            const to_load = page ?? this.page;
+            if(!this.validate(to_load)){return;}
             if(this.current_page.id && this.current_page.isDeletable){
                 await invoke('lcu', {endpoint: `/lol-perks/v1/pages/${this.current_page.id}`, method: 'DELETE'}).catch(console.error);
             }
-            await invoke('lcu', {endpoint: `/lol-perks/v1/pages`, method: 'POST', data: this.page})
+            await invoke('lcu', {endpoint: `/lol-perks/v1/pages`, method: 'POST', data: to_load})
                 .then((data) => {
                     this.current_page = data as RunePage;
-                }).catch(console.error);
+                }).catch(console.error)
+                .finally(() => {
+                    this.selecting_page = false;
+                });
         },
         save(){
             if(!this.validate()){return;}
@@ -306,11 +343,12 @@ export default {
             if(pages_json){
                 const pages_array = JSON.parse(pages_json);
                 const pages = new Map(pages_array)
-                pages.set(this.page.id, this.page);
+                pages.set(this.page.internal_id, this.page);
                 localStorage.setItem('rune_pages', JSON.stringify(Array.from(pages.entries())));
             } else {
-                localStorage.setItem('rune_pages', JSON.stringify([this.page]));
+                localStorage.setItem('rune_pages', JSON.stringify([[this.page.internal_id, this.page]]));
             }
+            this.saving_page = false;
         },
         connect(){
             invoke('get_credentials')
@@ -324,6 +362,7 @@ export default {
         }
     },
     mounted() {
+        console.log(this.saved_pages);
         this.connect();
         // @ts-ignore idk what ts is thinking here
         this.interval = setInterval(this.connect, 2000);
@@ -382,7 +421,7 @@ modal {
             margin-top: 0;
         }
 
-        select {
+        select, input {
             width: 80%;
         }
     }
