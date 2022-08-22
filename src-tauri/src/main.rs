@@ -3,21 +3,30 @@
   windows_subsystem = "windows"
 )]
 
-use league_client_connector::LeagueClientConnector;
-use league_client_connector::RiotLockFile;
+// use league_client_connector::LeagueClientConnector;
+// use league_client_connector::RiotLockFile;
 use reqwest::Method;
 use tauri::{
   Manager,
 };
+use std::path::PathBuf;
 use std::sync:: Mutex;
 use reqwest::Client;
 use std::fs::File;
 use std::io::Read;
 
+#[derive(Debug)]
+pub struct RiotLockFile {
+  pub port: u32,
+  pub password: String,
+  pub address: String
+}
+
 struct AppState {
   client: Client,
   credentials: Mutex<Option<RiotLockFile>>
 }
+
 
 #[tauri::command]
 fn close_splash(window: tauri::Window) {
@@ -34,19 +43,26 @@ fn close_splash(window: tauri::Window) {
 
 #[tauri::command]
 fn get_credentials(state: tauri::State<AppState>) -> Result<String, String> {
-  let lockfile = LeagueClientConnector::parse_lockfile();
-  match lockfile {
-    Ok(lockfile) => {
-      *state.credentials.lock().unwrap() = Some(lockfile.into());
-      Ok("Credentials loaded".into())
-    },
-    Err(_) => Err("League Client not found.".into())
-  }
+  let file_path = get_client_path().expect("Client not found");
+  let mut buf = String::new();
+    File::open(file_path).expect("Unable to open")
+      .read_to_string(&mut buf).unwrap();
+  let keys:Vec<&str> = buf.split(":").collect();
+  let mut lockfile = RiotLockFile {
+    port: keys[3].parse::<u32>().unwrap(),
+    password: keys[4].to_string(),
+    address: String::from("127.0.0.1")
+  };
+  println!("{:?}", lockfile);
+
+  *state.credentials.lock().unwrap() = Some(lockfile.into());
+  Ok("Client found".into())
 }
 
 #[tauri::command]
 async fn lcu(state: tauri::State<'_, AppState>, endpoint: String, method: String, data: Option<serde_json::Value>) -> Result<serde_json::Value, String> {
-  let credentials = state.credentials.lock().unwrap().as_ref().expect("Credentials not found").clone();
+  let credentials = state.credentials.lock().unwrap();
+  let thing = credentials.unwrap();
   let method = match method.to_string().to_uppercase().as_ref() {
     "GET" => Method::GET,
     "POST" => Method::POST,
@@ -59,12 +75,12 @@ async fn lcu(state: tauri::State<'_, AppState>, endpoint: String, method: String
     None => Some(serde_json::Value::Null)
   };
 
-  println!("{:?}", body);
+  // println!("{:?}", body);
 
   // println!("https://{}:{}{}", credentials.address, credentials.port, endpoint);
   
-  let body = state.client.request(method.clone(), format!("https://{}:{}{}", credentials.address, credentials.port, endpoint))
-  .basic_auth("riot", Some(credentials.password.clone()))
+  let body = state.client.request(method.clone(), format!("https://{}:{}{}", thing.address, thing.port, endpoint))
+  .basic_auth("riot", Some(thing.password.clone()))
   .json(&body)
   .send()
   .await
@@ -94,9 +110,11 @@ fn main() {
         let cert = reqwest::Certificate::from_pem(&buf).unwrap();
         // Build reqwest client
         let client = Client::builder()
+          .danger_accept_invalid_certs(true)
           .add_root_certificate(cert)
           .build()
           .unwrap();
+        // Setup app state
         app.manage(AppState {
           client,
           credentials: Mutex::new(None)
@@ -107,4 +125,22 @@ fn main() {
     .invoke_handler(tauri::generate_handler![close_splash, get_credentials, lcu])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
+}
+
+fn get_client_path() -> Result<PathBuf, String> {
+  use sysinfo::{ProcessExt, ProcessRefreshKind, RefreshKind, System, SystemExt};
+
+  let system = System::new_with_specifics(RefreshKind::new().with_processes(ProcessRefreshKind::everything()));
+
+  let mut processes = system.processes_by_name("LeagueClient.exe");
+
+  if let Some(p) = processes.next() {
+      if let Some(path) = p.exe().parent() {
+          let mut path = path.to_path_buf();
+          path.push("lockfile");
+          return Ok(path);
+      }
+  }
+
+  Err("Can't find lockfile. Make sure that the League Client is running.".into())
 }

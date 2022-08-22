@@ -30,63 +30,68 @@
     <!-- <h1 data-tauri-drag-region>Rift Buddy</h1> -->
     <!-- <p data-tauri-drag-region style="margin: 0; font-weight: bold">Searching for League client...</p> -->
 </body>
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-html{
-  background-size:cover;
-  height: 100%;
-  background-color: #141414;
-}
-body{
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  color: #b39556;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  height: 100%;
-  margin: 0;
-}
-h1{
-    font-weight: 600;
-}
-h1, h3{
-  margin: 0;
-}
-.loader{
-  width: 20%;
-  text-align: center;
-  padding: 1em;
-  margin: 0 auto 0;
-  display: inline-block;
-  vertical-align: top;
-}
-
-/*
-  Set the color of the icon
-*/
-svg path,
-svg rect{
-  fill: #b39556;
-}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+  html{
+    background-size:cover;
+    height: 100%;
+    background-color: #141414;
+  }
+  body{
+    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+    color: #b39556;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    height: 100%;
+    margin: 0;
+  }
+  h1{
+      font-weight: 600;
+  }
+  h1, h3{
+    margin: 0;
+  }
+  .loader{
+    width: 20%;
+    text-align: center;
+    padding: 1em;
+    margin: 0 auto 0;
+    display: inline-block;
+    vertical-align: top;
+  }
+  
+  /*
+    Set the color of the icon
+  */
+  svg path,
+  svg rect{
+    fill: #b39556;
+  }
 </style>
-<script>
-const invoke = window.__TAURI__.invoke
-// setTimeout(invoke('close_splash'), 5000)
-
-// Check if LCU is running
-const interval = setInterval(connect, 2000)
-
-function connect(){
-  invoke('get_credentials')
-    .then((connData) => {
-      console.log(connData)
-      console.log("Found league client!")
-      clearInterval(interval)
-      setTimeout(invoke('close_splash'), 5000)
-    })
-    .catch((e) => console.log("No league client found..."));
-}
-</script>
 </html>
+<script defer>
+  const invoke = window.__TAURI__.invoke
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(invoke('close_splash'), 5000);
+    console.log("Done Loading")
+  })
+  
+  // Check if LCU is running
+  // const interval = setInterval(connect, 2000)
+  
+  function connect(){
+    invoke('get_credentials')
+      .then((connData) => {
+        console.log(connData)
+        console.log("Found league client!")
+        clearInterval(interval)
+        setTimeout(invoke('close_splash'), 5000)
+      })
+      .catch((e) => console.log("No league client found..."));
+  }
+  </script>
