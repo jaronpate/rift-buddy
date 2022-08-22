@@ -43,17 +43,21 @@ fn close_splash(window: tauri::Window) {
 
 #[tauri::command]
 fn get_credentials(state: tauri::State<AppState>) -> Result<String, String> {
-  let file_path = get_client_path().expect("Client not found");
+  let file_path = get_client_path().or_else(|_| {
+    // println!("League client not found");
+    return Err("League client not found".to_string());
+  })?;
+
   let mut buf = String::new();
     File::open(file_path).expect("Unable to open")
       .read_to_string(&mut buf).unwrap();
   let keys:Vec<&str> = buf.split(":").collect();
-  let mut lockfile = RiotLockFile {
-    port: keys[3].parse::<u32>().unwrap(),
-    password: keys[4].to_string(),
+  let lockfile = RiotLockFile {
+    port: keys[2].parse::<u32>().unwrap(),
+    password: keys[3].to_string(),
     address: String::from("127.0.0.1")
   };
-  println!("{:?}", lockfile);
+  // println!("{:?}", lockfile);
 
   *state.credentials.lock().unwrap() = Some(lockfile.into());
   Ok("Client found".into())
@@ -61,8 +65,9 @@ fn get_credentials(state: tauri::State<AppState>) -> Result<String, String> {
 
 #[tauri::command]
 async fn lcu(state: tauri::State<'_, AppState>, endpoint: String, method: String, data: Option<serde_json::Value>) -> Result<serde_json::Value, String> {
-  let credentials = state.credentials.lock().unwrap();
-  let thing = credentials.unwrap();
+  let password = state.credentials.lock().unwrap().as_ref().unwrap().password.clone();
+  let port = state.credentials.lock().unwrap().as_ref().unwrap().port.clone();
+  let address = state.credentials.lock().unwrap().as_ref().unwrap().address.clone();
   let method = match method.to_string().to_uppercase().as_ref() {
     "GET" => Method::GET,
     "POST" => Method::POST,
@@ -79,8 +84,8 @@ async fn lcu(state: tauri::State<'_, AppState>, endpoint: String, method: String
 
   // println!("https://{}:{}{}", credentials.address, credentials.port, endpoint);
   
-  let body = state.client.request(method.clone(), format!("https://{}:{}{}", thing.address, thing.port, endpoint))
-  .basic_auth("riot", Some(thing.password.clone()))
+  let body = state.client.request(method.clone(), format!("https://{}:{}{}", address, port, endpoint))
+  .basic_auth("riot", Some(password.clone()))
   .json(&body)
   .send()
   .await
@@ -98,30 +103,34 @@ async fn lcu(state: tauri::State<'_, AppState>, endpoint: String, method: String
 
 fn main() {
   tauri::Builder::default()
-    .setup(|app| {
-      let cert_path = app.path_resolver()
-        .resolve_resource("./riotgames.pem")
-        .expect("Unable to find cert");
-      Ok({
-        // Self signed LCU Cert
-        let mut buf = Vec::new();
-        File::open(cert_path).expect("Unable to open")
-          .read_to_end(&mut buf).unwrap();
-        let cert = reqwest::Certificate::from_pem(&buf).unwrap();
-        // Build reqwest client
-        let client = Client::builder()
-          .danger_accept_invalid_certs(true)
-          .add_root_certificate(cert)
-          .build()
-          .unwrap();
-        // Setup app state
-        app.manage(AppState {
-          client,
-          credentials: Mutex::new(None)
-        });
-      })
-
+    .manage(AppState {
+      client:  Client::builder().danger_accept_invalid_certs(true).build().unwrap(),
+      credentials: Mutex::new(None)
     })
+    // .setup(|app| {
+    //   let cert_path = app.path_resolver()
+    //     .resolve_resource("./riotgames.pem")
+    //     .expect("Unable to find cert");
+    //   Ok({
+    //     // Self signed LCU Cert
+    //     let mut buf = Vec::new();
+    //     File::open(cert_path).expect("Unable to open")
+    //       .read_to_end(&mut buf).unwrap();
+    //     let cert = reqwest::Certificate::from_pem(&buf).unwrap();
+    //     // Build reqwest client
+    //     let client = Client::builder()
+    //       .danger_accept_invalid_certs(true)
+    //       .add_root_certificate(cert)
+    //       .build()
+    //       .unwrap();
+    //     // Setup app state
+    //     app.manage(AppState {
+    //       client,
+    //       credentials: Mutex::new(None)
+    //     });
+    //   })
+
+    // })
     .invoke_handler(tauri::generate_handler![close_splash, get_credentials, lcu])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

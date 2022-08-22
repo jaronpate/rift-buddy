@@ -491,7 +491,7 @@ export default defineComponent({
         }
     },
     mounted() {
-        // this.connect();
+        this.connect();
         createDataFolder().then(() => {
             readPagesFile().then(data => this.saved_pages_map = data);
         });
