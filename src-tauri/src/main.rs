@@ -3,8 +3,6 @@
   windows_subsystem = "windows"
 )]
 
-// use league_client_connector::LeagueClientConnector;
-// use league_client_connector::RiotLockFile;
 use reqwest::Method;
 use tauri::{
   Manager,
@@ -107,30 +105,6 @@ fn main() {
       client:  Client::builder().danger_accept_invalid_certs(true).build().unwrap(),
       credentials: Mutex::new(None)
     })
-    // .setup(|app| {
-    //   let cert_path = app.path_resolver()
-    //     .resolve_resource("./riotgames.pem")
-    //     .expect("Unable to find cert");
-    //   Ok({
-    //     // Self signed LCU Cert
-    //     let mut buf = Vec::new();
-    //     File::open(cert_path).expect("Unable to open")
-    //       .read_to_end(&mut buf).unwrap();
-    //     let cert = reqwest::Certificate::from_pem(&buf).unwrap();
-    //     // Build reqwest client
-    //     let client = Client::builder()
-    //       .danger_accept_invalid_certs(true)
-    //       .add_root_certificate(cert)
-    //       .build()
-    //       .unwrap();
-    //     // Setup app state
-    //     app.manage(AppState {
-    //       client,
-    //       credentials: Mutex::new(None)
-    //     });
-    //   })
-
-    // })
     .invoke_handler(tauri::generate_handler![close_splash, get_credentials, lcu])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
