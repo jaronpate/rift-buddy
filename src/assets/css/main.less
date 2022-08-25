@@ -1,11 +1,42 @@
 @primary: #b39556;
+@darkbg: #242424;
+@lighttext: rgba(255, 255, 255, 0.87);
+
+:root {
+    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+
+    color-scheme: light dark;
+    color: @lighttext;
+    background-color: @darkbg;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+}
+
+#app {
+    margin: 0 auto;
+    text-align: center;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+}
 
 @font-face {
     font-family: "Inter", sans-serif;
     src: url("./assets/Inter.ttf") format("ttf");
 }
 
-.loading, .loading-modal {
+.loading,
+.loading-modal {
     border: 5px solid fade(#222, 30%); /* Light grey */
     border-top: 5px solid fade(#222, 60%);
     border-radius: 50%;
@@ -32,7 +63,8 @@
 }
 
 img.icon {
-    @icon-color: brightness(0) invert(60%) sepia(94%) saturate(219%) hue-rotate(3deg) brightness(84%) contrast(87%);
+    @icon-color: brightness(0) invert(60%) sepia(94%) saturate(219%)
+        hue-rotate(3deg) brightness(84%) contrast(87%);
     filter: @icon-color;
     margin-left: 10px;
     transition: opacity 0.1s linear;
@@ -42,12 +74,13 @@ img.icon {
         cursor: pointer;
     }
 
-    &:first-of-type{
+    &:first-of-type {
         margin-left: 0;
     }
 }
 
-input, select {
+input,
+select {
     font-family: "Inter", sans-serif;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -116,15 +149,15 @@ input, select {
     }
 }
 
-.mx-10{
+.mx-10 {
     margin: 10px 0;
 }
 
-.mx-20{
+.mx-20 {
     margin: 20px 0;
 }
 
-.flex-col{
+.flex-col {
     flex-direction: column;
 }
 .flex-center {
@@ -143,8 +176,13 @@ input, select {
     width: 100%;
 }
 
-.sub-text{
+.sub-text {
     color: #999;
+}
+
+h1 {
+    font-size: 3.2em;
+    line-height: 1.1;
 }
 
 .modal {
@@ -174,12 +212,16 @@ input, select {
         background-color: #111;
         z-index: 10;
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             color: @primary;
             margin-top: 0;
         }
 
-        select, .search, input{
+        select,
+        .search,
+        input {
             width: 90%;
         }
 
@@ -194,9 +236,7 @@ input, select {
             }
         }
     }
-
 }
-
 
 .search {
     width: 100%;
@@ -249,7 +289,8 @@ input, select {
                 background-color: fade(#222, 30%);
                 cursor: pointer;
             }
-            .main-rune, .rune {
+            .main-rune,
+            .rune {
                 margin-left: 2px;
                 display: flex;
                 justify-content: center;

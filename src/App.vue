@@ -192,13 +192,14 @@ import prohibition from "iconoir/icons/prohibition.svg";
 </template>
 
 <script lang="ts">
-
 import axios from "axios";
 import { invoke } from '@tauri-apps/api/tauri';
 import { appWindow } from '@tauri-apps/api/window';
 import { v4 as uuid } from 'uuid';
 import { BaseDirectory, createDir, writeFile, readTextFile } from "@tauri-apps/api/fs";
 import { defineComponent } from "vue";
+
+document.addEventListener('contextmenu', (e) => e.preventDefault());
 
 const createDataFolder = async () => {
   return createDir("data", {
