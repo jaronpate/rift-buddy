@@ -35,7 +35,7 @@ import prohibition from "iconoir/icons/prohibition.svg";
     </header>
     <header style="height: 40px;">
         <div class="wordmark">
-            <div class="logo"><img src="./assets/logo.jpg" /></div>
+            <div class="logo"><img src="/logo.jpg" /></div>
         </div>
         <div class="search">
             <input type="text" :class="{'not-loading' : (results.length < 1 || !show_results) }"
@@ -289,6 +289,7 @@ export default defineComponent({
             query: "",
             page_query: "",
             loading: false,
+            updating: false,
             show_results: true,
             show_page_results: true,
             connected: false,
@@ -430,6 +431,8 @@ export default defineComponent({
             if (!to_validate.internal_id) {
                 to_validate.internal_id = uuid();
             }
+            console.log({...to_validate});
+            console.log(![0,1,2,3,4,5,6,7,8].every(i => to_validate.selectedPerkIds[i] ?? false));
             switch(true){
                 case to_validate.primaryStyleId === null:
                     return false;
@@ -437,7 +440,7 @@ export default defineComponent({
                     return false;
                 case to_validate.selectedPerkIds.length < 9:
                     return false;
-                case to_validate.selectedPerkIds.join('').trim().length === 0:
+                case ![0,1,2,3,4,5,6,7,8].every(i => to_validate.selectedPerkIds[i] ?? false):
                     return false;
                 case to_validate.name.trim().length === 0:
                     return false;
@@ -446,25 +449,21 @@ export default defineComponent({
             }
         },
         async update(page?: RunePage){
+            this.updating = true;
             const to_load = page ?? this.page;
             if(!this.validate(to_load)){return;}
-            if(this.current_page.id && this.current_page.isDeletable){
-                await invoke('lcu', {endpoint: `/lol-perks/v1/pages/${this.current_page.id}`, method: 'DELETE'}).catch(console.error);
-                this.current_page = {};
+            console.log(to_load);
+            await invoke('lcu', {endpoint: '/lol-perks/v1/currentpage', method: 'GET'})
+                .then((data) => this.current_page = data as RunePage).catch(console.error);
+            if(this.current_page.id){
+                await invoke('lcu', {endpoint: `/lol-perks/v1/pages/${this.current_page.id}`, method: 'PUT', data: to_load})
+                    .catch(console.error);
             } else {
-                await invoke('lcu', {endpoint: '/lol-perks/v1/currentpage', method: 'GET'})
+                await invoke('lcu', {endpoint: '/lol-perks/v1/pages', method: 'POST', data: to_load})
                     .then((data) => this.current_page = data as RunePage).catch(console.error);
-                await invoke('lcu', {endpoint: `/lol-perks/v1/pages/${this.current_page.id}`, method: 'DELETE'}).catch(console.error);
             }
-            await invoke('lcu', {endpoint: `/lol-perks/v1/pages`, method: 'POST', data: to_load})
-                .then((data) => {
-                    this.current_page = data as RunePage;
-                }).catch(console.error)
-                .finally(() => {
-                    this.selecting_page = false;
-                    this.selected_page = null;
-                    this.page_query = '';
-                });
+            this.updating = false;
+            this.close_modal();
         },
         save(){
             if(!this.validate()){ return; }
@@ -515,138 +514,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang="less">
-@primary: #b39556;
-
-@font-face {
-    font-family: "Inter", sans-serif;
-    src: url("./assets/Inter.ttf") format("ttf");
-}
-
-.modal {
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-    height: 100%;
-    width: 100%;
-
-    .background {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 100%;
-        background-color: fade(#111, 80%);
-    }
-
-    .content {
-        width: 50%;
-        height: 30%;
-        border-radius: 5px;
-        background-color: #111;
-        z-index: 10;
-
-        h1, h2, h3 {
-            color: @primary;
-            margin-top: 0;
-        }
-
-        select, .search, input{
-            width: 90%;
-        }
-
-        .options {
-            margin-top: 20px;
-        }
-    }
-
-}
-
-.button {
-    border-radius: 3px;
-    background-color: @primary;
-    padding: 5px 15px;
-    margin-left: 10px;
-    cursor: pointer;
-    transition-property: background-color;
-    transition: linear 0.1s;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    &:hover {
-        background-color: fade(@primary, 70%);
-    }
-
-    &.border {
-        background: none;
-        border: @primary solid 2px;
-        color: @primary;
-        border-radius: 99px;
-        padding: 5px 15px;
-        transition: background linear 0.1s;
-    }
-
-    &.border:hover {
-        background: @primary;
-        border: @primary solid 2px;
-        border-radius: 99px;
-        color: white;
-        padding: 5px 15px;
-
-        &.icon {
-            img {
-                filter: brightness(1) invert();
-            }
-        }
-    }
-
-    &.icon {
-        img.icon {
-            height: 20px;
-            margin-left: 10px;
-        }
-    }
-
-    &:first-of-type {
-        margin-left: 0;
-    }
-}
-
-.mx-10{
-    margin: 10px 0;
-}
-
-.mx-20{
-    margin: 20px 0;
-}
-
-.flex-col{
-    flex-direction: column;
-}
-.flex-center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.flex-left {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-}
-
-.ff {
-    width: 100%;
-}
-
-.sub-text{
-    color: #999;
-}
+@import './assets/css/main.less';
+@import './assets/css/runes.less';
 
 .handle{
     position: absolute;
@@ -687,6 +556,8 @@ header.connection {
     padding-right: 0;
     height: 30px;
     background-color: fade(#111, 50%);
+    // background-color: fade(#333, 50%);
+    // background: linear-gradient(90deg, fade(#333, 70%), fade(#111, 95%)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Aatrox_0.jpg') no-repeat center center;
 
     .tabs {
         display: flex;
@@ -736,8 +607,8 @@ header.connection {
     .user {
         .pfp {
             img {
-                border: fade(#111, 80%) solid 3px;
-                background-color: fade(#111, 50%);
+                border: fade(#111, 60%) solid 3px;
+                background-color: fade(#111, 30%);
                 border-radius: 999px;
                 height: 25px;
             }
@@ -751,140 +622,6 @@ header.connection {
                 font-size: 12px;
             }
         }
-    }
-}
-
-.runes {
-    margin-top: 25px;
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-start;
-}
-
-.rune-page {
-    width: 35%;
-}
-
-.rune-set {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin-bottom: 5px;
-    &:last-of-type{
-        margin-bottom: 0;
-    }
-}
-
-.select-main-rune{
-    margin: 15px 0;
-}
-
-.main-rune{
-    display: inline;
-    margin: 0 5px;
-
-    img {
-        border: #111 solid 2px;
-        background-color: fade(#111, 50%);
-        padding: 6px;
-        width: 18px;
-        border-radius: 99px;
-        transition: outline linear 0.1s;
-        outline-color: @primary;
-        outline: #b3955600 solid 2px;
-
-        &:hover, &.selected {
-            outline-color: @primary;
-            opacity: 0.9;
-            cursor: pointer;
-        }
-    }
-}
-
-.stat-mod{
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    margin: 5px 15px;
-
-    img {
-        border: #111 solid 2px;
-        background-color: fade(#111, 50%);
-        width: 25px;
-        border-radius: 99px;
-        transition: outline linear 0.1s;
-        outline-color: @primary;
-        outline: #d6414100 solid 2px;
-
-        &:hover, &.selected {
-            outline-color: @primary;
-            opacity: 0.9;
-            cursor: pointer;
-        }
-    }
-}
-
-.rune {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    margin: 5px;
-
-    &.keystones {
-        margin: 0 5px 15px 5px;
-    }
-
-    img {
-        border: #111 solid 2px;
-        background-color: fade(#111, 50%);
-        padding: 1px;
-        border-radius: 99px;
-        width: 45px;
-        transition: outline linear 0.1s;
-        outline-color: @primary;
-        outline: #d6414100 solid 2px;
-
-        &:hover, &.selected{
-            outline-color: @primary;
-            opacity: 0.9;
-            cursor: pointer;
-        }
-    }
-}
-
-.loading {
-    border: 5px solid fade(#222, 30%); /* Light grey */
-    border-top: 5px solid fade(#222, 60%);
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    animation: spin 2s linear infinite;
-    margin: auto;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-input, select {
-    font-family: "Inter", sans-serif;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    border: 0;
-    outline: 0;
-    padding: 10px 10px;
-    border-radius: 5px;
-    width: 100%;
-
-    &.not-loading {
-        border-bottom-left-radius: 5px !important;
-        border-bottom-right-radius: 5px !important;
     }
 }
 
@@ -935,102 +672,14 @@ input, select {
     }
 }
 
-.search {
-    width: 100%;
-    margin: auto 15px;
-    position: relative;
-
-    .results {
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-        background-color: #333;
-        border-radius: 5px;
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-        width: 100%;
-        padding: 5px 0;
-        position: absolute;
-        text-align: left;
-        z-index: 10;
-
-        .result {
-            padding: 5px 10px;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            .info {
-                margin-left: 15px;
-            }
-            h4,
-            p {
-                line-height: 18px;
-                margin: 0;
-                white-space: nowrap;
-            }
-            h4 {
-                font-weight: 600;
-            }
-            em {
-                font-size: 0.8em;
-                color: #999;
-            }
-            img {
-                width: 40px;
-            }
-
-            &:last-of-type {
-                margin-bottom: 0;
-            }
-            &:hover {
-                background-color: fade(#222, 30%);
-                cursor: pointer;
-            }
-            .main-rune, .rune {
-                margin-left: 2px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                img {
-                    width: 18px;
-                }
-            }
-        }
-    }
-
-    input {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-        width: 100% !important;
-    }
-}
-
 .main {
     margin: 10px 30px 0;
-}
-
-img.icon {
-    @icon-color: brightness(0) invert(60%) sepia(94%) saturate(219%) hue-rotate(3deg) brightness(84%) contrast(87%);
-    filter: @icon-color;
-    margin-left: 10px;
-    transition: opacity 0.1s linear;
-
-    &:hover {
-        opacity: 0.75;
-        cursor: pointer;
-    }
-
-    &:first-of-type{
-        margin-left: 0;
-    }
 }
 
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    // background-color: fade(#333, 50%);
-    // background: linear-gradient(90deg, fade(#333, 70%), fade(#111, 95%)), url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Aatrox_0.jpg') no-repeat center center;
     padding: 10px 15px;
 }
 

@@ -1,0 +1,97 @@
+.runes {
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+.rune-page {
+    width: 35%;
+}
+
+.rune-set {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 5px;
+    &:last-of-type{
+        margin-bottom: 0;
+    }
+}
+
+.select-main-rune{
+    margin: 15px 0;
+}
+
+.main-rune{
+    display: inline;
+    margin: 0 5px;
+
+    img {
+        border: #111 solid 2px;
+        background-color: fade(#111, 50%);
+        padding: 6px;
+        width: 18px;
+        border-radius: 99px;
+        transition: outline linear 0.1s;
+        outline-color: @primary;
+        outline: #b3955600 solid 2px;
+
+        &:hover, &.selected {
+            outline-color: @primary;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+    }
+}
+
+.stat-mod{
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px 15px;
+
+    img {
+        border: #111 solid 2px;
+        background-color: fade(#111, 50%);
+        width: 25px;
+        border-radius: 99px;
+        transition: outline linear 0.1s;
+        outline-color: @primary;
+        outline: #d6414100 solid 2px;
+
+        &:hover, &.selected {
+            outline-color: @primary;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+    }
+}
+
+.rune {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+
+    &.keystones {
+        margin: 0 5px 15px 5px;
+    }
+
+    img {
+        border: #111 solid 2px;
+        background-color: fade(#111, 50%);
+        padding: 1px;
+        border-radius: 99px;
+        width: 45px;
+        transition: outline linear 0.1s;
+        outline-color: @primary;
+        outline: #d6414100 solid 2px;
+
+        &:hover, &.selected{
+            outline-color: @primary;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+    }
+}

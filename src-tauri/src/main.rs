@@ -47,8 +47,8 @@ fn get_credentials(state: tauri::State<AppState>) -> Result<String, String> {
   })?;
 
   let mut buf = String::new();
-    File::open(file_path).expect("Unable to open")
-      .read_to_string(&mut buf).unwrap();
+  File::open(file_path).or_else(|_| Err("Failed to open client file".to_string()))?
+    .read_to_string(&mut buf).or_else(|_| Err("Failed to read client file".to_string()))?;
   let keys:Vec<&str> = buf.split(":").collect();
   let lockfile = RiotLockFile {
     port: keys[2].parse::<u32>().unwrap(),

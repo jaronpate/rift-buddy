@@ -87,6 +87,21 @@
         "title": "Rift Buddy",
         "url": "splash.html",
         "label": "splash"
+      },
+      {
+        "width": 150,
+        "height": 300,
+        "x": 0,
+        "y": 500,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "decorations": false,
+        "visible": false,
+        "title": "Rift Buddy",
+        "url": "overlay.html",
+        "label": "overlay"
       }
     ]
   }
