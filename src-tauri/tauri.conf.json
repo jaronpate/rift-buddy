@@ -24,9 +24,6 @@
         "writeFile": true,
         "createDir": true,
         "scope": ["$APP/*"]
-      },
-      "path": {
-        "all": true
       }
     },
     "bundle": {
@@ -53,7 +50,6 @@
         "providerShortName": null,
         "signingIdentity": null
       },
-      "resources": ["./riotgames.pem"],
       "shortDescription": "",
       "targets": "all",
       "windows": {

@@ -47,7 +47,7 @@ import prohibition from "iconoir/icons/prohibition.svg";
                 <template v-if="loading">
                     <div class="loading"></div>
                 </template>
-                <div class="result" v-else-if="results.length" v-for="champ in results" @click="() => select(champ)" :key="champ.id">
+                <div class="result" v-else-if="results.length" v-for="champ in results" @mousedown="() => select(champ)" :key="champ.id">
                     <img :src="champ_img(champ.image.full)"/>
                     <div class="info">
                         <h4>{{champ.name}}</h4>
@@ -159,7 +159,7 @@ import prohibition from "iconoir/icons/prohibition.svg";
                     v-model="page_query" @keyup="find_page"
                     placeholder="Search for a saved page" />
                 <div class="results" v-if="page_results.length && show_page_results" style="max-height: 400px; overflow-y: auto;">
-                    <div class="result" v-for="page in page_results" @click="() => select_page(page)" :key="page.internal_id">
+                    <div class="result" v-for="page in page_results" @mousedown="() => select_page(page)" :key="page.internal_id">
                         <div class="info">
                             <h4>{{page.name}}</h4>
                             <!-- <p><em>{{page.metadata.champ.name}}</em></p> -->
@@ -343,8 +343,8 @@ export default defineComponent({
         close_results(){
             const _this = this;
             this.selected_page = null;
-            setTimeout(() => _this.show_results = false, 300);
-            setTimeout(() => _this.show_page_results = false, 300);
+            this.show_results = false;
+            this.show_page_results = false;
         },
         close_modal(){
             this.selecting_page = false;
