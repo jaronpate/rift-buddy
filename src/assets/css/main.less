@@ -3,7 +3,7 @@
 @lighttext: rgba(255, 255, 255, 0.87);
 
 :root {
-    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+    font-family: 'Red Hat Display', sans-serif;
     font-size: 16px;
     line-height: 24px;
     font-weight: 400;
@@ -28,11 +28,6 @@ body {
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
-}
-
-@font-face {
-    font-family: "Inter", sans-serif;
-    src: url("./assets/Inter.ttf") format("ttf");
 }
 
 .loading,
@@ -62,15 +57,14 @@ body {
     z-index: 100;
 }
 
-img.icon {
-    @icon-color: brightness(0) invert(60%) sepia(94%) saturate(219%)
-        hue-rotate(3deg) brightness(84%) contrast(87%);
-    filter: @icon-color;
-    margin-left: 10px;
+.icon {
     transition: opacity 0.1s linear;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     &:hover {
-        opacity: 0.75;
+        // opacity: 0.75;
         cursor: pointer;
     }
 
@@ -81,7 +75,7 @@ img.icon {
 
 input,
 select {
-    font-family: "Inter", sans-serif;
+    font-family: 'Red Hat Display', sans-serif;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
@@ -90,57 +84,57 @@ select {
     padding: 10px 10px;
     border-radius: 5px;
     width: 100%;
+    height: 33px;
 
     &.not-loading {
         border-bottom-left-radius: 5px !important;
         border-bottom-right-radius: 5px !important;
+    }
+
+    &:focus, &:focus-visible {
+        // box-shadow: 0px 0px 0px 3px fade(@primary, 30%);
+        outline: 1px solid @primary;
     }
 }
 
 .button {
     border-radius: 3px;
     background-color: @primary;
-    padding: 5px 15px;
+    padding: 0px 10px;
     margin-left: 10px;
     cursor: pointer;
-    transition-property: background-color;
-    transition: linear 0.1s;
-    font-weight: bold;
+    transition: background-color linear 0.1s;
+    font-weight: 500;
     display: flex;
     justify-content: center;
     align-items: center;
+    vertical-align: middle;
+    font-size: 13px;
+    line-height: 16px;
+    height: 26px;
 
     &:hover {
-        background-color: fade(@primary, 70%);
+        // background-color: #d4b165;
+        background-color: fade(@primary, 75%);
     }
 
     &.border {
         background: none;
+        padding: 3px 13px;
         border: @primary solid 2px;
         color: @primary;
-        border-radius: 99px;
-        padding: 5px 15px;
         transition: background linear 0.1s;
     }
 
     &.border:hover {
         background: @primary;
         border: @primary solid 2px;
-        border-radius: 99px;
         color: white;
-        padding: 5px 15px;
-
-        &.icon {
-            img {
-                filter: brightness(1) invert();
-            }
-        }
     }
 
     &.icon {
-        img.icon {
-            height: 20px;
-            margin-left: 10px;
+        .icon {
+            margin-left: 5px;
         }
     }
 
@@ -252,13 +246,15 @@ h1 {
         border-top-left-radius: 0;
         border-top-right-radius: 0;
         width: 100%;
-        padding: 5px 0;
+        // padding: 5px 0;
         position: absolute;
         text-align: left;
         z-index: 10;
+        // box-shadow: 3px 3px 0px 0px fade(@primary, 30%), -3px 3px 0px 0px fade(@primary, 30%);
+        outline: 1px solid @primary;
 
         .result {
-            padding: 5px 10px;
+            padding: 8px 10px;
             display: flex;
             justify-content: flex-start;
             align-items: center;

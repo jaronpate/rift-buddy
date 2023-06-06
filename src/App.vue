@@ -57,17 +57,17 @@ import prohibition from "iconoir/icons/prohibition.svg";
             </div>
         </div>
         <div class="options">
-            <div class="button border icon" @click="() => clear()">
+            <div class="button icon" @click="() => clear()">
                 Clear
-                <img class="icon" :src="prohibition" />
+                <!-- <Prohibition color="#fff" width="14px" height="14px" /> -->
             </div>
-            <div class="button border icon" @click="saving_page = true">
+            <div class="button icon" @click="saving_page = true">
                 Save
-                <img class="icon" :src="download" />
+                <!-- <Download color="#fff" width="14px" height="14px" /> -->
             </div>
-            <div class="button border icon" @click="selecting_page = true">
+            <div class="button icon" @click="selecting_page = true">
                 Load
-                <img class="icon" :src="upload" />
+                <!-- <Upload color="#fff" width="14px" height="14px" /> -->
             </div>
         </div>
     </header>
@@ -174,11 +174,11 @@ import prohibition from "iconoir/icons/prohibition.svg";
                     </div>
                 </div>
             </div>
-            <img class="icon" style="margin-right: 10px;" @click="() => delete_page()" :src="trash" />
+            <Trash :color="colors.primary" style="margin-right: 10px;" @click="() => delete_page()" />
         </div>
         <div class="options flex-center">
             <div class="button" @click="() => { if (selected_page) update(selected_page) }">Load</div>
-            <div class="button" @click="() => { if (selected_page) page = {...selected_page}; selecting_page = false; }">Edit</div>
+            <div class="button" @click="edit_page">Edit</div>
             <div class="button" @click="() => close_modal()">Close</div>
         </div>
     </Modal>
@@ -271,6 +271,9 @@ type PageMetadata = Record<string, any>;
 export default defineComponent({
     data() {
         return {
+            colors: {
+                primary: '#b39556'
+            },
             spells: ["Q", "W", "E", "R"],
             offense_stat_mods: [
                 {id: 5008, desc: "+9 Adaptive Force", icon: "StatModsAdaptiveForceIcon.png"},
@@ -341,8 +344,6 @@ export default defineComponent({
             appWindow.close();
         },
         close_results(){
-            const _this = this;
-            this.selected_page = null;
             this.show_results = false;
             this.show_page_results = false;
         },
@@ -387,7 +388,8 @@ export default defineComponent({
                 this.loading = false;
             });
         },
-        select_page(page: RunePage){
+        select_page(selected_page: RunePage){
+            const page = Object.assign({}, selected_page);
             this.page_query = page.name;
             this.page_results = [];
             this.selected_page = page;
@@ -415,6 +417,10 @@ export default defineComponent({
             invoke('lcu', {endpoint: '/lol-perks/v1/currentpage', method: 'GET'})
                 .then((data) => {
                     this.current_page = data as RunePage;
+                }).catch(console.error);
+            invoke('lcu', {endpoint: '/lol-perks/v1/pages', method: 'GET'})
+                .then((data) => {
+                    console.log(data);
                 }).catch(console.error);
         },
         clear(){
@@ -488,6 +494,13 @@ export default defineComponent({
                     this.user = {};
                     this.connected = false;
                 });
+        },
+        edit_page() {
+            if(this.selected_page) {
+                this.page = this.selected_page;
+            }
+            this.page_query = '';
+            this.selecting_page = false;
         }
     },
     mounted() {
@@ -544,7 +557,7 @@ export default defineComponent({
     }
 
     &#close:hover{
-        background-color: fade(rgb(255, 0, 0), 70%);
+        background-color: fade(#FF3D33, 75%);
     }
 }
 
@@ -553,7 +566,7 @@ header {
 }
 
 header.connection {
-    padding: 5px 15px;
+    padding: 5px 11px;
     padding-right: 0;
     height: 30px;
     background-color: fade(#111, 50%);
@@ -611,7 +624,7 @@ header.connection {
                 border: fade(#111, 60%) solid 3px;
                 background-color: fade(#111, 30%);
                 border-radius: 999px;
-                height: 25px;
+                height: 21px;
             }
         }
 
@@ -702,8 +715,10 @@ header {
 }
 
 .logo {
+    display: flex;
     img {
-        height: 30px;
+        height: 22px;
+        width: 22px;
     }
 }
 </style>
