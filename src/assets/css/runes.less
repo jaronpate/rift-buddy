@@ -1,5 +1,4 @@
 .runes {
-    margin-top: 25px;
     display: flex;
     justify-content: space-around;
     align-items: flex-start;
@@ -14,38 +13,40 @@
     justify-content: space-around;
     align-items: center;
     margin-bottom: 5px;
-    &:last-of-type{
+    &:last-of-type {
         margin-bottom: 0;
     }
 }
 
-.select-main-rune{
+.select-main-rune {
     margin: 15px 0;
 }
 
-.main-rune{
-    display: inline;
-    margin: 0 5px;
+.main-rune {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
 
     img {
         border: #111 solid 2px;
         background-color: fade(#111, 50%);
-        padding: 6px;
-        width: 18px;
+        padding: 4px;
         border-radius: 99px;
-        transition: outline linear 0.1s;
-        outline-color: @primary;
-        outline: #b3955600 solid 2px;
+        transition: border linear 0.1s;
+        height: 100%;
 
-        &:hover, &.selected {
-            outline-color: @primary;
+        &:hover,
+        &.selected {
+            border-color: @primary;
             opacity: 0.9;
             cursor: pointer;
         }
     }
 }
 
-.stat-mod{
+.stat-mod {
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -57,11 +58,10 @@
         width: 25px;
         border-radius: 99px;
         transition: outline linear 0.1s;
-        outline-color: @primary;
-        outline: #d6414100 solid 2px;
 
-        &:hover, &.selected {
-            outline-color: @primary;
+        &:hover,
+        &.selected {
+            border-color: @primary;
             opacity: 0.9;
             cursor: pointer;
         }
@@ -88,7 +88,8 @@
         outline-color: @primary;
         outline: #d6414100 solid 2px;
 
-        &:hover, &.selected{
+        &:hover,
+        &.selected {
             outline-color: @primary;
             opacity: 0.9;
             cursor: pointer;

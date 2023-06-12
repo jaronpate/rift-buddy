@@ -1,68 +1,44 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
+    "beforeDevCommand": "yarn dev",
     "beforeBuildCommand": "yarn build",
-    "beforeDevCommand": "yarn dev --port 3000",
-    "devPath": "http://127.0.0.1:3000",
+    "devPath": "http://localhost:1420",
     "distDir": "../dist",
-    "withGlobalTauri": true    
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "Rift Buddy",
-    "version": "0.1.0"
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
-      "all": true,
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      },      
       "window": {
-        "show": true,
+        "all": false,
+        "close": true,
         "hide": true,
-        "close": true
-      },
-      "fs": {
-        "readFile": true,
-        "writeFile": true,
-        "createDir": true,
-        "scope": ["$APP/*"]
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true
       }
     },
     "bundle": {
       "active": true,
-      "category": "Utility",
-      "copyright": "",
-      "deb": {
-        "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "dev.fishhat.riftbuddy",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "shortDescription": "",
       "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
+      "identifier": "dev.fishhat.riftbuddy",
+      "icon": [
+        "icons/icon.ico"
+      ]
     },
     "security": {
       "csp": null
-    },
-    "updater": {
-      "active": false
     },
     "windows": [
       {
@@ -70,6 +46,7 @@
         "height": 700,
         "resizable": true,
         "decorations": false,
+        "transparent": true,
         "title": "Rift Buddy",
         "width": 800,
         "visible": false
