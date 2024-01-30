@@ -1,0 +1,66 @@
+{
+  "build": {
+    "beforeDevCommand": "yarn dev",
+    "beforeBuildCommand": "yarn build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "Rift Buddy",
+    "version": "0.0.1"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      },      
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "dev.fishhat.riftbuddy",
+      "icon": [
+        "icons/icon.ico"
+      ]
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 700,
+        "resizable": true,
+        "decorations": false,
+        "transparent": true,
+        "title": "Rift Buddy",
+        "width": 800,
+        "visible": false
+      },
+      {
+        "width": 250,
+        "height": 250,
+        "resizable": false,
+        "decorations": false,
+        "center": true,
+        "title": "Rift Buddy",
+        "url": "splash.html",
+        "label": "splash"
+      }
+    ]
+  }
+}
